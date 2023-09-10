@@ -64,7 +64,7 @@ html, body {
 
 @media only screen and (max-width: 428px) {
     .img-magnifier-container {
-        height: calc(100vw * 761 / 428);
+        height: 100%
     }
 }
 

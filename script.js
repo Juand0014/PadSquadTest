@@ -1,73 +1,56 @@
 document.addEventListener("DOMContentLoaded", () => {
     const targetImage = document.getElementById("zoom_image");
-    const parentContaner = document.getElementById("magnifier-wrapper");
-    const magnifyingGlass = document.createElement("DIV");
+    const magnifyingGlass = createMagnifyingGlass(targetImage);
     let isDragging = false;
 
-    const updateBackgroundSize = () => {
-        const width = targetImage.getBoundingClientRect().width;
-        const height = targetImage.getBoundingClientRect().height;
-        magnifyingGlass.style.backgroundSize = `${width * 3.2}px ${height * 3.5}px`;
-    };
+    targetImage.parentElement.insertBefore(magnifyingGlass, document.getElementById("magnifier-wrapper"));
 
-    magnifyingGlass.setAttribute("class", "img-magnifier-glass");
-    magnifyingGlass.style.backgroundImage = `url('${targetImage.src}')`;
-    magnifyingGlass.style.backgroundRepeat = "no-repeat";
-    updateBackgroundSize();
-    targetImage.parentElement.insertBefore(magnifyingGlass, parentContaner);
+    function createMagnifyingGlass(img) {
+        const element = document.createElement("DIV");
+        element.className = "img-magnifier-glass";
+        element.style.background = `no-repeat url('${img.src}')`;
+        updateBackgroundSize(element, img);
+        return element;
+    }
 
-    const dragMagnifyingGlass = (event) => {
+    function updateBackgroundSize(element, img) {
+        const { width, height } = img.getBoundingClientRect();
+        element.style.backgroundSize = `${width * 3.2}px ${height * 3.5}px`;
+    }
+
+    function getCursorPosition(e, img) {
+        const rect = img.getBoundingClientRect();
+        return { x: e.pageX - rect.left - window.pageXOffset, y: e.pageY - rect.top - window.pageYOffset };
+    }
+
+    function drag(event) {
         if (!isDragging) return;
+        const { x, y } = getCursorPosition(event.type === 'touchmove' ? event.touches[0] : event, targetImage);
+        const [clampX, clampY] = [Math.min(Math.max(x, 0), targetImage.width), Math.min(Math.max(y, 0), window.innerHeight)];
+        Object.assign(magnifyingGlass.style, {
+            left: `${clampX - magnifyingGlass.offsetWidth / 2}px`,
+            top: `${clampY - magnifyingGlass.offsetHeight / 2}px`,
+            backgroundPosition: `-${clampX * 3}px -${clampY * 3}px`
+        });
+    }
 
-        const coordinates = event.type === 'touchmove'
-            ? event.touches[0]
-            : event;
-
-        const { x: adjustedX, y: adjustedY } = getCursorPosition(coordinates, targetImage);
-
-        const screenHeight = window.innerHeight;
-
-        const clampedX = Math.min(Math.max(adjustedX, 0), targetImage.width);
-        const clampedY = Math.min(Math.max(adjustedY, 0), screenHeight);
-
-        magnifyingGlass.style.left = `${clampedX - magnifyingGlass.offsetWidth / 2}px`;
-        magnifyingGlass.style.top = `${clampedY - magnifyingGlass.offsetHeight / 2}px`;
-        magnifyingGlass.style.backgroundPosition = `-${clampedX * 3}px -${clampedY * 3}px`;
-    };
-
-    const getCursorPosition = (event) => {
-        const imageRect = targetImage.getBoundingClientRect();
-        const x = event.pageX - imageRect.left - window.pageXOffset;
-        const y = event.pageY - imageRect.top - window.pageYOffset;
-        return { x, y };
-    };
-
-    magnifyingGlass.addEventListener("mousedown", (event) => {
+    function start(event, type) {
         const rect = magnifyingGlass.getBoundingClientRect();
-        offsetX = event.clientX - rect.left;
-        offsetY = event.clientY - rect.top;
+        [offsetX, offsetY] = type === "mouse" ? [event.clientX - rect.left, event.clientY - rect.top] : [event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top];
         magnifyingGlass.style.cursor = "grabbing";
         isDragging = true;
-    });
+    }
 
-    magnifyingGlass.addEventListener("touchstart", (event) => {
-        const rect = magnifyingGlass.getBoundingClientRect();
-        offsetX = event.touches[0].clientX - rect.left;
-        offsetY = event.touches[0].clientY - rect.top;
-        isDragging = true;
-    });
-
-    window.addEventListener("mouseup", () => {
+    function stop() {
         magnifyingGlass.style.cursor = "grab";
         isDragging = false;
-    });
+    }
 
-    window.addEventListener("touchend", () => {
-        isDragging = false;
-    });
-
-    window.addEventListener("mousemove", dragMagnifyingGlass);
-    window.addEventListener("touchmove", dragMagnifyingGlass);
-
-    window.addEventListener("resize", updateBackgroundSize);
+    magnifyingGlass.addEventListener("mousedown", e => start(e, "mouse"));
+    magnifyingGlass.addEventListener("touchstart", e => start(e, "touch"));
+    window.addEventListener("mouseup", stop);
+    window.addEventListener("touchend", stop);
+    window.addEventListener("mousemove", drag);
+    window.addEventListener("touchmove", drag);
+    window.addEventListener("resize", () => updateBackgroundSize(magnifyingGlass, targetImage));
 });

@@ -4,6 +4,14 @@
     overflow: hidden;
 }
 
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* desactiva el desplazamiento */
+}
+
 .magnifier-wrapper {
     display: flex;
     justify-content: center;
@@ -13,9 +21,13 @@
     overflow: hidden;
 }
 
-.img-magnifier-container {
+.img-magnifier-container, #image, #zoom_image {
     position: absolute;
-    width: 428px;
+    width: 100%;
+    height: auto;
+}
+
+.img-magnifier-container {
     height: 761px;
     overflow: hidden;
 }
@@ -28,15 +40,6 @@
     border-radius: 50%;
     z-index: 4;
     cursor: grabbing;
-    background-repeat: no-repeat;
-    background-blend-mode: screen;
-}
-
-#image, #zoom_image {
-    position: absolute;
-    width: 100%;
-    height: auto;
-    z-index: 1;
 }
 
 #zoom_image {
@@ -51,7 +54,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: #000
+    background: #000;
     color: #fff;
     font-size: 24px;
     text-align: center;
@@ -61,11 +64,9 @@
 
 @media only screen and (max-width: 428px) {
     .img-magnifier-container {
-        width: 100%;
         height: calc(100vw * 761 / 428);
     }
 }
-
 
 @media screen and (min-width: 429px) {
     .rotation-message {

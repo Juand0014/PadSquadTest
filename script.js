@@ -36,7 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function start(event, type) {
         const rect = magnifyingGlass.getBoundingClientRect();
-        [offsetX, offsetY] = type === "mouse" ? [event.clientX - rect.left, event.clientY - rect.top] : [event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top];
+
+        [offsetX, offsetY] = type === "mouse"
+            ? [event.clientX - rect.left, event.clientY - rect.top]
+            : [event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top];
+
         magnifyingGlass.style.cursor = "grabbing";
         isDragging = true;
     }

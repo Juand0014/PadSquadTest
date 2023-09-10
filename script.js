@@ -6,8 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     targetImage.parentElement.insertBefore(magnifyingGlass, document.getElementById("magnifier-wrapper"));
 
     function createMagnifyingGlass(img) {
-        const element = document.createElement("DIV");
-        element.className = "img-magnifier-glass";
+        const element = document.querySelector(".img-magnifier-glass")
         element.style.background = `no-repeat url('${img.src}')`;
         updateBackgroundSize(element, img);
         return element;
